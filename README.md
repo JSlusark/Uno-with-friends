@@ -1,360 +1,219 @@
-_This project has been created as part of the 42 curriculum by grial, ilazar, jslusark, wlucke._
+# Uno with Friends
 
-# transcendence
+<div align="center">
+  <img id="header-menu" src="./docs/imgs/hero.jpg" alt="Uno with Friends Logo" width="600" />
+<br>
 
-Our final project for the 42 school common core.
-A real-time multiplayer UNO card game: Play UNO with up to 4 people, chat in real time, track your stats on a leaderboard and more!
+**[About](#about) ·
+[Features](#features) ·
+[Preview](#preview) ·
+[Team Roles & Workflow](#team-roles--workflow) ·
+[Tech Stack](#tech-stack) ·
+[Running the Project](#running-the-project)**
 
----
+</div>
 
-## Description
+## About
 
-**Project name:** Transcendence (UNO)
+<img src="docs/imgs/preview.gif"><br>
 
-**Our Goal:** Our main goal for this project was mainly to learn full stack web development principles. Most of our previous projects were based on low level programming languages and old programming libraries, this has been our first project to use a modern development stack, So we decided to build a simple single-page web application of a game that everyone knows and likes, UNO!
+A real-time online multiplayer card game, built from the ground up by a team of four developer students at [42 Berlin](https://www.42berlin.de/).
 
-The project is a website hosting a real-time multiplayer UNO. The game is a classic card game where players take turns matching a card in their hand with the current card shown on top of the deck either by color or number. The goal is to be the first player to get rid of all their cards. The game includes special action cards that can change the flow of the game, such as Skip, Reverse, Draw Two, Wild, and Wild Draw Four cards.
+We chose to build a multiplayer game experience to challenge our skills in real-time communication, complex state synchronization and responsive design while delivering a fun and engaging user experience of a card game everyone knows and loves: "Uno!".
+
+## Features
+
+- **Real-Time Multiplayer:** Play Uno with friends seamlessly via WebSocket connections.
+- **Matchmaking & Lobbies:** Create private rooms with custom invite links or join existing matches.
+- **Live Game State:** Highly synchronized game engine that validates moves, handles turn order and calculates scoring server-side.
+- **User Accounts & Profiles:** Secure authentication system with match history, win/loss tracking and customizable avatars.
+- **In-Game Chat:** Communicate with lobby members while playing.
+- **Responsive UI:** Clean, mobile-friendly interface designed for an optimal user experience across desktop and mobile devices.
+
+## Preview
+
+The interface is designed to be responsive and mobile-friendly, guiding players from account access to their first match.
+
+#### 1. Sign in or register
+
+Players can sign in or create an account from the landing page. After either action, they are redirected to their homepage.
 
-multiplayer game where users can play against each other in real time, chat with each other and track their stats on a leaderboard. The project is built with a modern web development stack and we wanted to use this project as an opportunity to learn and practice full stack web development principles.
+<div align="center">
+  <img src="docs/imgs/gifs/login.gif"><br>
+</div>
 
-Build a single-page web application where users can play the UNO card game against each other in real time. All communication between frontend and backend is encrypted via HTTPS. The project demonstrates mastery of full-stack web development, real-time networking, game logic, and DevOps practices.
+#### 2. Player dashboard
 
-**Key Features:**
+The homepage brings together the player's profile information, global leaderboard, match history and game access cards.
 
-- 👤 **User accounts:**
-  User can create an account by providing email, username, and password. Users must have a unique email and username.
-- 🔐 **Account Security:** we use different security measures to ensure that user data is protected. From hashing passwords with bcrypt to rate-limiting requests, protecting input and
-  storing JWT tokens in HttpOnly cookies on the backend and frontend.
-- 🙋‍♂️ **User profile data**  
-  Each user gets a profile page showing their username, avatar and user data such as: - Account creation date - Winning points - Total matches played - Winning rate between wins and losses - Rank placement in global Leaderboard - Match history with opponent names, dates, results, and avatars.
-  User Profiles can be accesed only on login and are private to the user by default.
-- 🥷 **New player detection:** since new users have no game data yet, we show personalised account to make them feel welcomed and guided enough to start their first game.
-- 🪪 **Experience Badges:**
-  Users can earn badges based on how much they play and how many games they win. From the newbie badge for first-time players to the master badge for those who have won a significant number of games, these badges serve as a visual representation of a user's achievements and progress within the game.
-- 🏆 **Global leaderboard**: all users are ranked by the number of total wins and games played. A tie breaker is used to rank users with the same score. Users with no game data are included in the leaderboard but without rank placement.
-  Each user in the leaderboard has their username, avatar, wins, and losses. Unranked users (0 games) appear at position 0.
-- 🥊 **Match History:** all completed matches are stored in the database and can be accessed by the user on their profile page. Each match shows the opponents names, avatars, results (win/loss), room names and match dates.
-- 📋 **Game Room Handling system:** users can create a room with a custom name or join an existing one via a unique room name. Each room can hold 2–4 players. If a player leaves the room during a game, they are not kicked out immediately but instead, a 30-second grace timer starts to allow them to rejoin (for example, if they accidentally close the tab, disconnected or navigate away).The room handling system covers many different scenarios to ensure a smooth user experience.
-- 🃏 **Uno game engine**: the game is implemented in a custom-built engine that handles all UNO rules and edge cases. The game ends when a player empties their hand, a game result is shown to all players and the game results are saved in the database. Players who leave the game before completion are not counted in the final results. The game also handles when player is abandoned from their opponent, in this case the game is interrupted and not saved in the database.
-- 💬 **In-Room Chat System:**
-  When joining a game, users can interact with each other via chat.
-  Our chat system provides room event notifications, allows players to send messages to each other and provides the full chat history of a room.
-  As the chat history is saved in memory, it does not persist after the room is closed.
-- ✨ **Interactive web interface:** the frontend is made with React and is not only responsive but also provides an interactive experience with animations, real-time updates and a smooth user experience, additionally to the grapichs from the game canvas.
-- 🚪 **Gated routes handling:** all routes are protected and require authentication. Users must be logged in to access the app. Unauthenticated users are redirected to the login page.
+<div align="center">
+  <img src="docs/imgs/logged_user.png" width="380"><br>
+</div>
 
-- 📞 **https connection:** all communication between frontend and backend is encrypted via HTTPS. TLS termination is handled by NGINX, which proxies plain HTTP to the backend over Docker's internal network. Self-signed certificates are generated for local development by `make certs`. We also handle http to https redirection on port 80 for user convenience.
-- 🐳 **Full Docker Environment**: the project ships as four Docker Compose services connected over a shared bridge network:
-  - `nginx` (NGINX 1.27-alpine): is the only service exposed to the host (ports 8443 for HTTPS, 80 for HTTP to HTTPS redirect). Terminates TLS, proxies `/api/` and `/socket.io/` to `api:3000`, and everything else to `web:5173`. Serves static avatars from a shared volume.
-  - `db` (PostgreSQL 16-alpine): stores users, profiles, games, and placements. Only the `api` service talks to it directly.
-  - `api` (Fastify + TypeScript): handles auth, game logic via `gamelogic/`, room management via `gameManager/`, and real-time communication via Socket.IO. Exposes port 3000 internally. Depends on `db` being healthy before starting.
-  - `web` (React 19 + Vite 7): dev server on port 5173. Proxied through NGINX, never exposed directly. All API calls use relative paths (`/api/*`, `/socket.io/*`) so they go through the same HTTPS origin.
+#### 3. Profile and experience
 
-  Flow: browser → `https://localhost:8443` → NGINX terminates TLS → proxies REST to `api`, WebSocket upgrades to `api`, static/SPA requests to `web`. `api` queries `db` over the internal Docker network. Nothing except NGINX is reachable from outside the container.
+The profile view displays personal statistics, match history and experience badges. New players see a personalized onboarding view that invites them to play their first match and start gaining experience.
 
----
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/imgs/badges.png" width="380"></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/imgs/gifs/badge_newbie.png" width="301" height="140">
+      <img src="docs/imgs/gifs/badge_beginner.png" width="306" height="140">
+      <img src="docs/imgs/gifs/badge_intermediate.png" width="267" height="140">
+      <img src="docs/imgs/gifs/badge_expert.png" width="268" height="140">
+      <img src="docs/imgs/gifs/badge_master.png" width="303" height="140">
+    </td>
+  </tr>
+</table>
 
-## Instructions
+#### 4. Create or join a game
 
-### Prerequisites
+Players can switch between creating a new room and joining an existing one. If a player is already in a room, an alert gives them limited time to either rejoin that room or leave before accessing a new one.
 
-| Tool           | Version | Purpose                        |
-| -------------- | ------- | ------------------------------ |
-| Docker         | 24+     | Container runtime              |
-| Docker Compose | 2+      | Multi-container orchestration  |
-| Make           | (any)   | Build automation               |
-| OpenSSL        | (any)   | SSL certificate generation     |
-| Node.js        | 20+     | Running TypeScript             |
+<table align="center">
+  <tr>
+    <td align="center" valign="middle"><img src="docs/imgs/gifs/create_room.gif" width="240" height="240"></td>
+    <td align="center" valign="middle"><img src="docs/imgs/gifs/join_room.gif" width="240" height="240"></td>
+    <td align="center" valign="middle"><img src="docs/imgs/gifs/droptimer.gif" width="240" height="240"></td>
+  </tr>
+</table>
 
-### Quick Start
+#### 5. Room and chat
 
-1. Clone the repository then run:
+Once inside a room, players can copy the room link and share it with friends. They can also see player status updates and communicate through the in-game chat. By the end of the match, the game results are displayed and players can return to the dashboard.
 
-```bash
-make           # or 'make setup' — full clean build from scratch
-```
+<table align="center">
+  <tr>
+    <td align="center" valign="middle"><img src="docs/imgs/end_screen.png" width="357" height="260"></td>
+    <td align="center" valign="middle"><img src="docs/imgs/gifs/chatpresence.gif" width="121" height="260"></td>
+    <td align="center" valign="middle"><img src="docs/imgs/gifs/room_player_status.gif" width="299" height="260"></td>
+  </tr>
+</table>
 
-This will allow you to setup the project for running in one single command as it will do the following:
+  <div align="right"><a href="#header-menu">↑ Return to top</a></div>
 
-- Create `.env` with random secure credentials
-- Generate self-signed SSL certificates
-- Clean any previous Docker state
-- Build & start all 4 containers (db, api, web, nginx)
-- Push the Prisma schema to PostgreSQL
-- Seed the database with test users and game history
-  These commands can also be executed individually for build, testing and debugging purposes.
-  Check the [makeFile](./Makefile) to access view all info of the different available commands and their purpose.
+## Team Roles & Workflow
 
-2. **Check the terminal output:**
-   At the end of the build process, you should see the following output which shares:
+Each developer was responsible for a broad but specific area of the project:
 
-- the URL to access the app
-  `✅  App running at https://localhost:8443`
-- the IP address of your machine for other devices on the same network:
-  ` 🌐  Other devices: https://192.168.178.183:8443`
+<table>
+   <tr valign="top">
+      <td align="center" width="25%">
+         <img src="https://github.com/jslusark.png" alt="JSlusark avatar" width="100" height="100" style="display: block; margin: 0 auto;" /><br>
+         <strong><a href="https://github.com/jslusark">@jslusark</a></strong><br>
+         <strong >Full-Stack Developer <br>& Project Manager</strong><br><br>
+         <div align="left">• Coordinated team deadlines, feature planning and code reviews.<br>• Built the interactive web interface, routing, authentication flow and state management.<br>• Implemented final feature integrations, bug fixes and system optimizations to ensure proper functionality across the stack.</div>
+      </td>
+      <td align="center" width="25%">
+         <img src="docs/imgs/grial.jpg" alt="Grial avatar" width="100" height="100" style="display: block; margin: 0 auto;" /><br>
+         <strong><a href="https://github.com/grial">@grial</a></strong><br>
+         <strong>Game Developer</strong><br><br><br>
+         <div align="left">• Designed and built the core "Uno" gameplay mechanics and engine.<br>• Developed the 2D frontend game board (drag & drop, animations) using Phaser 3.<br>• Integrated the engine with the socket layer.</div>
+      </td>
+      <td align="center" width="25%">
+         <img src="docs/imgs/ilazar.jpg" alt="Ilazar avatar" width="100" height="100" style="display: block; margin: 0 auto;" /><br>
+         <strong><a href="https://github.com/ilazar">@ilazar</a></strong><br>
+         <strong>Backend Developer</strong><br><br><br>
+         <div align="left">• Responsible for the real-time Socket.IO multiplayer layer.<br>• Managed room lifecycles and online player tracking.<br>• Managed in-game chat, drop timers and reconnection system.</div>
+      </td>
+      <td align="center" width="25%">
+         <img src="docs/imgs/wlucke.jpg" alt="Wlucke avatar" width="100" height="100" style="display: block; margin: 0 auto;" /><br>
+         <strong><a href="https://github.com/wlucke">@wlucke</a></strong><br>
+         <strong>Backend Developer</strong><br><br><br>
+         <div align="left">• Managed database architecture and user management.<br>• Built the JWT register/login system and user profiles (with sharp image validation).<br>• Built the leaderboards and the Prisma + PostgreSQL data layer.</div>
+      </td>
+   </tr>
+</table>
 
-  3.**Open the app:** visit `https://localhost:8443` and accept the self-signed certificate warning.
+<div align="center">
+Collaboration was also a key part of this experience, a combination of agile practices and resource management was used to ensure a continuous workflow.
 
-4. **Login:** create a new account or use one of the seeded test users below:
+[Kanban board](https://github.com/orgs/42-Hitchhikers-Collective/projects/) · [Resource sharing](https://app.notion.com/p/42wolfsburgberlin/Transcendence-2e9937251cae8026ac8ee6f59b496509) · [Docs folder](docs/)
 
-| Username | Email               | Password     |
-| -------- | ------------------- | ------------ |
-| alice    | alice@example.com   | Alice12345   |
-| bob      | bob@example.com     | Bob12345     |
-| charlie  | charlie@example.com | Charlie12345 |
+</div>
 
-4. **Play:** open a second browser or incognito window or access the app from another device on the same network using the IP address shown in the terminal. Log in with a different account and create/join a room to start playing.
+  <div align="right"><a href="#header-menu">↑ Return to top</a></div>
 
-5. **To stop the app:** there are different ways to stop the app
+## Tech Stack
 
-- `make down`: stops the 4 project containers but keeps everything else but preserves the database volume, built images, and Docker network. This is good for stopping the app for a while and resuming later.
-- `make clean`: like `make down` but also deletes the database and orphaned images, networks, and volumes associated with this project. Great for a full reset of the project without affecting other Docker projects on your machine.
-- `make prune`: removes everything related to Docker on your machine. Use this if Docker is eating your disk space. After pruning, the next `make up` has to rebuild images from scratch (no cache).
+**Frontend**<br>
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=20232A) ![TypeScript 5](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white) ![Vite 7](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white) ![TailwindCSS 4](https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss&logoColor=white) ![Shadcn/ui](https://img.shields.io/badge/Shadcn-000000?logo=shadcnui&logoColor=white) ![Phaser 3.90](https://img.shields.io/badge/Phaser-3.90-8B5CF6?logo=phaser&logoColor=white)
 
-### Environment Variables (`.env`)
+**Backend**<br>
+![Fastify 5](https://img.shields.io/badge/Fastify-5-000000?logo=fastify&logoColor=white) ![Socket.IO 4](https://img.shields.io/badge/Socket.IO-4-010101?logo=socketdotio&logoColor=white) ![Prisma 6](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white) ![JWT](https://img.shields.io/badge/JWT-000000?logo=jsonwebtokens&logoColor=white) ![Bcrypt](https://img.shields.io/badge/Bcrypt-338?logo=letsencrypt&logoColor=white)
 
-We automatically generate a `.env` file to easily configure the project for local development, it is done via `make env` which is also called by `make` or `make setup`.
+**Database**<br>
+![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 
-The `.env` file is **never** committed to the repository, it is ignored by Git to ensure it never gets pushed to the repository.
-We only provide a `.env.example` placeholder as requested by the subject. The `.env` file contains sensitive credentials and should be kept private.
+**Infrastructure**<br>
+![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white) ![NGINX](https://img.shields.io/badge/NGINX-009639?logo=nginx&logoColor=white) ![Make](https://img.shields.io/badge/Make-427819?logo=gnu&logoColor=white)
 
-| Variable                                              | Purpose                                                 |
-| ----------------------------------------------------- | ------------------------------------------------------- |
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Database credentials                                    |
-| `DATABASE_URL`                                        | Prisma connection string                                |
-| `JWT_SECRET`                                          | JWT signing key                                         |
-| `EXPOSE_DEV_TOKENS`                                   | Dev-only: expose tokens in API responses for test suite |
+  <div align="right"><a href="#header-menu">↑ Return to top</a></div>
 
----
+## Running the Project
 
-## Resources
+1. **Check prerequisites**
 
-### Project Documentation and resources
+   Make sure you have the following installed on your machine:
 
-During the project we have used a long series of resouces and tools:
+   | Tool           | Version | Purpose                                         |
+   | -------------- | ------- | ----------------------------------------------- |
+   | Docker         | 24+     | Container runtime                               |
+   | Docker Compose | 2+      | Multi-container orchestration                   |
+   | Make           | any     | Build automation                                |
+   | OpenSSL        | any     | Self-signed SSL cert generation                 |
+   | Node.js        | 20+     | Only needed if running a service outside Docker |
 
-- [Project Documentation](docs/) — detailed architecture, design decisions, and verification steps
-- [Project Kanban Board](https://github.com/orgs/42-Hitchhikers-Collective/projects/5): to organize tasks, track progress, and manage team collaboration.
-- [Project Notion](https://app.notion.com/p/42wolfsburgberlin/Transcendence-2e9937251cae8026ac8ee6f59b496509)
-- [TypeScript Style guide](https://google.github.io/styleguide/tsguide.html)
-- [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/)
-- [Http requwsts vs WebSocket communication](https://blog.postman.com/websockets-vs-http-key-differences-explained/)
-- [UNO Official Rules](<https://en.wikipedia.org/wiki/Uno_(card_game)>)
-- [Fastify Documentation](https://fastify.dev/docs/)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Phaser 3 Documentation](https://photonstorm.github.io/phaser3-docs/)
-- [Socket.IO Documentation](https://socket.io/docs/v4/)
-- [Docker Documentation](https://docs.docker.com/)
-- [React Documentation](https://react.dev/learn)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs/installation)
-- [Shadcn/ui Documentation](https://ui.shadcn.com/docs)
-- [Vite Documentation](https://vitejs.dev/guide/)
+2. **Clone the repository**
 
-### AI Usage
+   ```bash
+   git clone [https://github.com/JSlusark/Uno-with-friends.git](https://github.com/JSlusark/Uno-with-friends.git)
+   cd Uno-with-friends
+   ```
 
-AI assistants were used throughout the project for:
+3. **Run the project**
 
-- **Brainstorming** — researching solutions, generating ideas, and exploring alternative approaches to problems.
-- **Debugging**: Ai has been incredibly useful when debugging partner code and identifying missing data or misconfigurations, especially in cases where we couldn't communicate directly with the author. It has helped us understand code we did not own and fix issues quickly, avoiding potential delays in our development process.
-- **Documentation**: recording important findings in notes and finalising documentation for the project.
+   ```bash
+   make  # also available as `make  setup`
+   ```
 
-All AI-generated code was reviewed and tested, thoroughly, human verification was a must to ensure correctness and functionality.
+   One command does everything: creates `.env` with random credentials, generates a self-signed cert, tears down and rebuilds all four containers, waits for the database and then for the API to actually answer over HTTPS and prints your URL:
 
----
+   ```
+   ✅  App running at https://localhost:8443
+   🌐  Other devices: https://192.168.x.x:8443
+   ```
 
-## Team Information
+4. **Access the website**
 
-- grial: Game developer across backend (UNO engine) and frontend (Phaser canvas). Designed and built the core game mechanics (card logic, rule enforcement, turn management) and integrated the game engine with the real-time socket layer.
+   Open `https://localhost:8443` and accept the self-signed certificate warning. Migrations and seed data are applied automatically by the API container on every boot.
 
-- ilazar: Backend developer focused on real-time communication and room management. Built the Socket.IO layer, room lifecycle (create/join/leave), online players tracking, chat, drop timer and reconnection system.
+   Either create and log automatically with a fresh account, or one of our seeded test users:
 
-- jslusark: Full-stack developer and project manager. Organised and coordinated team efforts, deadlines, feature planning, and code reviews. Contributed to both frontend (UI, routing, authentication, state management) and backend (final feature implementations, bug fixes and optimizations).
+   | Username | Email               | Password     |
+   | -------- | ------------------- | ------------ |
+   | alice    | alice@example.com   | Alice12345   |
+   | bob      | bob@example.com     | Bob12345     |
+   | charlie  | charlie@example.com | Charlie12345 |
 
-- wlucke: Backend developer focused on authentication, user management, and database. Built the register/login system with JWT cookies, user profiles with avatar upload, leaderboard and game history, and the Prisma + PostgreSQL data layer.
+5. **Play with friends**
+   To play with friends you have to share the same network.
+   Since the project is running locally on your machine, you can play with friends by sharing the LAN URL (e.g., `https://192.168.x.x:8443`) if they are on the same local network.
 
----
+   The following commands are available for development and maintenance.
 
-## Project Management
+   | Command              | What it does                              |
+   | -------------------- | ----------------------------------------- |
+   | `make down`          | Stop containers, keep the database        |
+   | `make re`            | Restart, data preserved                   |
+   | `make logs`          | Follow logs from all containers           |
+   | `make clean`         | Full project reset (containers + volumes) |
+   | `make db-seed`       | Re-seed test data manually                |
+   | `make prisma-studio` | Visual DB browser at `localhost:5555`     |
 
-| Practice            | Approach                                                                                            |
-| ------------------- | --------------------------------------------------------------------------------------------------- |
+Full recipe list with comments: [`Makefile`](./Makefile).
 
-| **Task Tracking**   | GitHub Kanban Board for task management, progress tracking, and team collaboration                  |
-| **Code Reviews**    | In-person pair programming, testing and merge sessions on campus |
-| **Documentation**   | Notion (architecture decisions, meeting notes, availability tracking) + Markdown docs in `docs/`                           |
-| **Communication channels**   | Slack and Whatsapp for daily updates and sync meetings                                              |
-
----
-
-## Technical Stack
-
-### Architecture
-
-```
-Browser ──HTTPS──▶ NGINX ──proxy──▶ Fastify API (:3000)
-                         │
-                         ├──proxy──▶ Vite Dev Server (:5173)
-                         │
-                         └──WSS──▶ Socket.IO (via /socket.io/)
-                                    │
-                                    └──▶ PostgreSQL (:5432)
-```
-
-### Frontend
-
-| Technology                | Purpose                                        |
-| ------------------------- | ---------------------------------------------- | ------------ | --- |
-| **React 19**              | component-based library for SPA                |
-| **TypeScript 5**          | Type-safe development                          |
-| **Vite 7**                | Dev server + build tool                        |
-| **TailwindCSS 4**         | CSS library                                    |
-| **Shadcn**                | Built in React components                      |
-| **React Router v7**       | Client-side routing                            |
-| **Phaser 3.90**           | 2D game canvas (UNO board, cards, drag & drop) |
-| **React Hook Form + Zod** | Form handling + schema validation              |
-| **Lucide React**          | Icons                                          |
-| **Motion**                | Css Animations                                 |
-| <!--                      | **Recharts**                                   | Stats charts | --> |
-
-### Backend
-
-| Technology               | Purpose                                           |
-| ------------------------ | ------------------------------------------------- |
-| **Fastify 5**            | HTTP server — high performance, TypeScript-native |
-| **Socket.IO 4**          | Real-time bidirectional communication             |
-| **Prisma 6**             | ORM — type-safe database access                   |
-| **JWT** (`@fastify/jwt`) | Stateless authentication                          |
-| **bcrypt**               | Password hashing                                  |
-| **sharp**                | Image processing (avatar validation)              |
-| **@fastify/rate-limit**  | Brute-force protection                            |
-
-### Database
-
-**PostgreSQL 16** was chosen for:
-
-- ACID compliance (game results must be accurate)
-- JSON support (flexible game state storage)
-- Strong Prisma ORM support
-- Reliability and maturity
-
-### Infrastructure
-
-| Technology         | Purpose                                                  |
-| ------------------ | -------------------------------------------------------- |
-| **NGINX**          | Reverse proxy + TLS termination + static file serving    |
-| **Docker Compose** | Container orchestration — 4 services on a bridge network |
-| **OpenSSL**        | Self-signed certificates for local HTTPS                 |
-
-### Major Technical Choices
-
-| Choice                               | Why                                                                   g            |
-| ------------------------------------ | --------------------------------------------------------------------------------- |
-| **TLS Termination at NGINX**         | Single encryption point, backend stays simple (plain HTTP internally)             |
-| **HttpOnly JWT Cookies**             | XSS-resistant token storage — JS cannot read the token                            |
-| **In-Memory Game State**             | UNO games are ephemeral, no need to persist every card draw to DB                |
-| **Phaser Canvas (not WebGL)**        | Canvas 2D is sufficient for a card game |
-| **Prisma Migrations**                | Full migration history with `prisma migrate dev` ensures schema consistency across environments and rollback support |
-
----
-
-## Database Schema
-
-![Database Schema](apps/api/prisma-db.svg)
-
-### Tables
-
-| Table          | Description                   | Key Fields                                                                              |
-| -------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
-| **User**       | Player accounts               | `id` (UUID PK), `email` (unique), `passwordHash`                                        |
-| **Profile**    | Public player info            | `userId` (PK/FK → User), `username` (unique), `avatarUrl`                               |
-| **Game**       | Completed game records        | `id` (UUID PK), `roomName`, `status` (RUNNING/FINISHED/ABORTED), `createdAt`, `endedAt` |
-| **GamePlayer** | Player participation in games | composite PK (`gameId`, `userId`), `placement` (1st, 2nd, ...)                          |
-
-### Relationships
-
-- `User` 1:1 `Profile`
-- `User` 1:N `GamePlayer` N:1 `Game`
-
-Schema file: [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma)
-
----
-
-
-## Features List
-
- Feature | Description | Lead |
-|---------|-------------|------|
-| UNO game engine | Full ruleset: skip, reverse, +2, +4, wild, color picker, UNO call, win detection | grial & ilazar |
-| Phaser game canvas | 2D board, drag & drop cards, player hands, animations | grial |
-| Room system | Create/join by name, 2–4 players, 30s drop timer, reconnection | ilazar & jlusark |
-| Real-time sync | Socket.IO: card play, turn passing, wild color selection | ilazar, grial & jslusark |
-| Room chat | Text messages + system events, 50-msg history replayed on join | ilazar  & jslusark|
-| Docker + HTTPS | TLS-terminated NGINX, single-command `make` setup, 4-container orchestration | wlucke, ilazar, jslusark, grial |
-| Auth system | Register/login, JWT in HttpOnly cookies, bcrypt, rate limiting | wlucke & jslusark |
-| User profiles | Avatar upload (sharp validation), stats display, win/loss record | wlucke & jslusark |
-| Leaderboard | Public, ranked by wins, tiebreaker by fewest games | wlucke & jslusark |
-| Game history | Completed matches with opponents, results, dates — persisted in PostgreSQL | wlucke & jslusark |
-| Database schema | Prisma ORM + PostgreSQL, seed data for testing | wlucke & jslusark |
-| UI & routing | React SPA, TailwindCSS, shadcn/ui, gated routes, responsive layout and UX | jslusark |
-| New player onboarding | Personalized welcome screen for users with no game data | jslusark |
-| Experience badges | Newbie → Master based on games played and wins | jslusark |
-| Input validation | regex + Schema + rate limits | wLucke & jslusark |
-| Project management | Task tracking, deadlines, feature planning, code reviews | jslusark |
-
----
-
-## Modules
-A detailed list of modules that we have chosen to implement for this project can be found in [docs/readme_files/modules.md](docs/readme_files/modules.md).
-Here we show the modules on which each person worked and total points for each module.
-The modules are divided into mandatory and bonus modules.
-
----
-
-## Individual Contributions
-
-For individual contribution of each member regarding Modules, see Modules section through the link above.
-
-
-### grial
-
-- **Features:** Phaser game canvas, UNO game engine
-- **Challenges:** Using Phaser library. Communicating between backend and frontend.
-
-### ilazar
-
-- **Features:** Socket multi-player layer. Chat.
-- **Challenges:** Managing the socket layer between backend and frontend.
-
-### jslusark
-
-- **Features:** Web interface with authentication and react state management.
-- **Challenges:** Handling a large code-base and manage socket data races on the frontend.
-
-### wlucke
-
-- **Features:** API, Database and initial setup.
-- **Challenges:** Adjusting the database to the needs of the project.
-
-
-## Roles
-
-| Role                 | Member(s)                       |
-| -------------------- | ------------------------------- |
-| Product Owner (PO)   | Shared by the team              |
-| Project Manager (PM) | jslusark                        |
-| Technical Lead       | Shared by the team              |
-| Developers           | grial, ilazar, jslusark, wlucke |
-
----
-
-## Known Limitations
-
-- **No OAuth**: only email/password authentication (login via Google, Apple etc. not implemented)
-- **Game Canvas not ported to portrait mode**: the game canvas is responsive but is not optimized for playing on portrait mobile devices (still playable just not ideal)
-- **Self-Signed Certificate**: browsers show a security warning on first visit (click "Advanced" → "Proceed")
-- **No Password Reset and email update**: no email system configured with SMTP; users cannot reset forgotten passwords
-
----
-
-- **Confirmed total mandatory: 15 pts**.
-- **Confirmed total mandatory + bonus: 20 pts**.
+  <div align="right"><a href="#header-menu">↑ Return to top</a></div>
