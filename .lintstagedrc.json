@@ -1,0 +1,3 @@
+{
+  "apps/web/**/*.{ts,tsx}": "apps/web/node_modules/.bin/eslint --config apps/web/eslint.config.js"
+}

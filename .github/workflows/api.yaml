@@ -1,0 +1,23 @@
+name: api
+on: # events that trigger this workflow
+  push: # if push does not touch apu (but other parts of the repo), skips the workflow
+    paths: ["apps/api/**", ".github/workflows/api.yaml"]
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api # to avoid executing at root
+    steps: 
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          {
+            node-version: 24,
+            cache: npm,
+            cache-dependency-path: apps/api/package-lock.json,
+          }
+      - run: npm ci
+      # generates Prisma client it isn't committed. On a fresh CI machine it doesn't exist, so any test that imports it would crash. Generating it doesn't need a database.
+      - run: npx prisma generate
+      - run: npm run test # runs vitest unit tests

@@ -1,0 +1,23 @@
+name: web
+on: # events that trigger this workflow
+  push: # if push does not touch web (but other parts of the repo), skips the workflow
+    paths: ["apps/web/**", ".github/workflows/web.yaml"]
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web # to avoid executing at root
+    steps: 
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          {
+            node-version: 24,
+            cache: npm,
+            cache-dependency-path: apps/web/package-lock.json,
+          }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test # runs vitest unit tests
+      - run: npm run build # tsc -b && vite build, so this also typechecks

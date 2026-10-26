@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
@@ -16,13 +17,24 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    test: { // test configuration for vitest
+      environment: "jsdom",
+      setupFiles: "./src/test/setup.ts",
+      include: ["src/**/*.test.{ts,tsx}"],
+    },
     resolve: {
       alias: [
-         // This tells Vite: whenever you see "@", look in the "src" folder
+        // This tells Vite: whenever you see "@", look in the "src" folder
         // "@": path.resolve(__dirname, "./src"),
         //  "src": path.resolve(__dirname, "./src"),
-        { find: /^@\/(.*)/, replacement: path.resolve(__dirname, "src") + "/$1" },
-        { find: /^@dice\/(.*)/, replacement: path.resolve(__dirname, "@") + "/$1" },
+        {
+          find: /^@\/(.*)/,
+          replacement: path.resolve(__dirname, "src") + "/$1",
+        },
+        {
+          find: /^@dice\/(.*)/,
+          replacement: path.resolve(__dirname, "@") + "/$1",
+        },
         { find: "src", replacement: path.resolve(__dirname, "src") },
       ],
     },
