@@ -40,7 +40,7 @@ export const ProfileAvatar = ({
   const [files, setFiles] = useState<File[]>([]);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [error, setError] = useState<boolean>(false);
+  const [/* error, */, setError] = useState<boolean>(false);
   // Tracks whether an upload is in progress — guards against duplicate submissions
   // and drives the loading spinner overlay
   const [isUploading, setIsUploading] = useState(false);

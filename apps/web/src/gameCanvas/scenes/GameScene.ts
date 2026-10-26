@@ -6,14 +6,14 @@ import { InputManager } from "../managers/InputManager";
 import { RenderManager } from "../managers/RenderManager";
 import { UIManager } from "../managers/UIManager";
 import { Announcement } from "../managers/Announcemente";
-import { canvasReady, canvasRefresh } from "../../network/gameNetwork";
+import { canvasRefresh } from "../../network/gameNetwork";
 
-const LOG = (msg: string) => console.log(`🕹️ PHASER: ${msg}`);
+// const LOG = (msg: string) => console.log(`🕹️ PHASER: ${msg}`); // uncomment together with the LOG(...) calls below
 
 export class GameScene extends Scene {
   private room!: FrontendRoom;
   private myPlayerId: string = "";
-  private myPlayerName: string = ""; // JESS: add player name to help you in better debugging
+  // private myPlayerName: string = ""; // JESS: add player name to help you in better debugging
 
   private boardManager!: BoardManager;
   private inputManager!: InputManager;
@@ -91,7 +91,7 @@ export class GameScene extends Scene {
       const observer = room.players.find((p) => p.isTheObserver);
       if (observer) {
         this.myPlayerId = observer.id;
-        this.myPlayerName = observer.userName; //  JESS: added player name for better debugging
+        // this.myPlayerName = observer.userName; //  JESS: added player name for better debugging
         this.renderManager.setMyPlayerId(observer.id);
       }
     }
@@ -103,8 +103,8 @@ export class GameScene extends Scene {
     this.renderManager.setCanDraw(isMyTurn); // JESS: we use the isMyTurn variable to set the canDraw flag in the render manager, which is used to guard the user interactions with the draw pile when it's not their turn
     // JESS: added this log to show the game state in a more clear way, with the name of the player that is playing and the number of cards they have, and also if it's the observer or not, to help with debugging the game scene and understand better what's going on in the game
     if(turnName !== "Unknown") { 
-      const myCards =
-        room.players.find((p) => p.id === this.myPlayerId)?.cardCount ?? "?";
+      // const myCards =
+      //   room.players.find((p) => p.id === this.myPlayerId)?.cardCount ?? "?";
       // LOG(`GAME STATE \n    Is ${turnName} 's turn is playing with ${myCards} cards`); // // JESS: keep this log to help with debugging tha game scene
       // LOG(`OBSERVER STATE \n    Observer: ${this.myPlayerName} , Is my turn: ${isMyTurn}, Cards: ${myCards}`); // JESS: keep this log to help with debugging tha game scenn   
     }

@@ -244,8 +244,8 @@ export function useGamePage(roomName: string) {
     }
   };
 
-  const handleGameStartSuccess = ({ roomId }: GameStartSuccessPayload) => {
-    // console.log(`[GamePage] game_start_success received for room ${roomId}`);
+  const handleGameStartSuccess = (_payload: GameStartSuccessPayload) => {
+    // console.log(`[GamePage] game_start_success received for room ${_payload.roomId}`);
     setGameStarted(true);
   };
 

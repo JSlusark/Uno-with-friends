@@ -1,5 +1,5 @@
 
-import { ChatBubbleLeftIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import Chat from "./Chat";
 
 export default function ChatOverlay({

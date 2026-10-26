@@ -11,7 +11,7 @@ export default function PendingCard({
   onRejoin,
   onLeave,
 }: PendingCardProps) {
-  const { timeLeft, isRunning, start } = PendingGameTimer(30_000);
+  const { /* timeLeft, */ isRunning, start } = PendingGameTimer(30_000);
 
   return (
     <div

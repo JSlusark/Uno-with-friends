@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { socket } from "@/socket/Socket";
 import cardBack from "@/assets/icons/uno_card_back.png";

@@ -190,15 +190,15 @@ export default function PlayerList({
   // Combine current + leaving players for rendering
   const allPlayers = [...playerList, ...leavingPlayers];
 
-  if (playerList.length > 0) {
-    // Debugging logs to track changes
-    // console.log(`👤👤👤👤 PLAYER LIST UPDATED`);
-    playerList.forEach((p, i) => {
-      // console.log(
-      //   ` ${i++}. ${p.userName} - ${p.dropped ? "(dropped)" : "in room"} - Is player turn: ${p.isPlayerTurn}`,
-      // );
-    });
-  }
+  // Debugging logs to track changes
+  // if (playerList.length > 0) {
+  //   console.log(`👤👤👤👤 PLAYER LIST UPDATED`);
+  //   playerList.forEach((p, i) => {
+  //     console.log(
+  //       ` ${i++}. ${p.userName} - ${p.dropped ? "(dropped)" : "in room"} - Is player turn: ${p.isPlayerTurn}`,
+  //     );
+  //   });
+  // }
 
   return (
     <div className="min-w-0 overflow-hidden flex flex-col">

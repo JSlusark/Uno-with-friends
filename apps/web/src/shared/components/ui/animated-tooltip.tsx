@@ -3,7 +3,7 @@ Source:
 https://ui.aceternity.com/components/animated-tooltip
 */
 "use client";
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   motion,
   useTransform,

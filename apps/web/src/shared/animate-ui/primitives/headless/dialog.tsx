@@ -12,7 +12,7 @@ import {
   type DialogPanelProps as DialogPanelPrimitiveProps,
   type DialogTitleProps as DialogTitlePrimitiveProps,
   CloseButton,
-  CloseButtonProps,
+  type CloseButtonProps,
 } from '@headlessui/react';
 import {
   motion,

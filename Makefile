@@ -59,15 +59,22 @@ dirs:
 	@echo "📁  Creating required directories..."
 	mkdir -p data/postgres data/avatars nginx/certs
 
-# Generates a self-signed SSL certificate for local HTTPS development.
-# Creates nginx/certs/dev.key and nginx/certs/dev.crt valid for 10 years.
-# Only for localhost — browsers will show a security warning (expected).
+# Generates an SSL certificate for local HTTPS development.
+# If mkcert is installed, the cert is trusted by your browser (no warning).
+# Otherwise falls back to a self-signed cert — browsers will show a security warning (expected).
 certs: dirs
-	@echo "🔐  Generating self-signed SSL certificate..."
-	openssl req -x509 -newkey rsa:2048 -sha256 -days 3650 -nodes \
-		-keyout nginx/certs/dev.key \
-		-out nginx/certs/dev.crt \
-		-subj "/CN=localhost"
+	@if command -v mkcert >/dev/null 2>&1; then \
+		echo "🔐  mkcert found — generating locally-trusted SSL certificate..."; \
+		mkcert -install; \
+		mkcert -key-file nginx/certs/dev.key -cert-file nginx/certs/dev.crt localhost 127.0.0.1 ::1; \
+	else \
+		echo "🔐  mkcert not found — generating self-signed SSL certificate..."; \
+		echo "    (optional: install mkcert to remove the browser warning)"; \
+		openssl req -x509 -newkey rsa:2048 -sha256 -days 3650 -nodes \
+			-keyout nginx/certs/dev.key \
+			-out nginx/certs/dev.crt \
+			-subj "/CN=localhost"; \
+	fi
 	@echo "✅  SSL certificate ready"
 
 # Prints the local and LAN URLs after the app starts.

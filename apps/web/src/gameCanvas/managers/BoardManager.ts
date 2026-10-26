@@ -1,4 +1,4 @@
-import { CARDS, PLAYER, SCREEN } from "./Layouts.ts";
+import { SCREEN } from "./Layouts.ts";
 
 export class BoardManager {
   private pile!: Phaser.GameObjects.Zone;

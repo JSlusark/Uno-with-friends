@@ -1,6 +1,6 @@
 import { socket } from "../socket/Socket.ts";
 
-const LOG = (msg: string) => console.log(`[Network] ${msg}`);
+// const LOG = (msg: string) => console.log(`[Network] ${msg}`); // uncomment together with the LOG(...) calls below
 
 export function playCard(cardIndex: number) {
   // LOG(`📤 emit play_card | index: ${cardIndex}`);

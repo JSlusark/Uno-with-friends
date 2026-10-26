@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "@/socket/Socket";
-import type { PlayerListItem } from "../../hooks/useGamePage";
 
 type ChatMessage = {
   senderId: string;

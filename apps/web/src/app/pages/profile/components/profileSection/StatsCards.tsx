@@ -1,8 +1,6 @@
 import {
-  PuzzlePieceIcon,
   TrophyIcon,
   UserGroupIcon,
-  GlobeAmericasIcon,
   SparklesIcon,
 } from "@heroicons/react/24/solid";
 
@@ -75,7 +73,6 @@ function EmptyStats() {
 
 function Stats({
   gamesPlayed,
-  winRate,
   rank,
   wins,
 }: {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { EventBus } from "../../events/EventBus";
-import { FrontendRoom } from "../types/roomTypes";
+import type { FrontendRoom } from "../types/roomTypes";
 
 export function useRoomState() {
   const [room, setRoom] = useState<FrontendRoom | null>(null);
