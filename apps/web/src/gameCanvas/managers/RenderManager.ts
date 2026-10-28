@@ -41,7 +41,7 @@ export class RenderManager {
 
   // this.scene.add.* on a destroyed scene throws "can't access property 'add'".
   render(room: FrontendRoom) {
-    if (!this.scene || !(this.scene as any).sys?.game) return; // JESS: added guard to prevent console errors when navigating away from the game scene (scene is destroyed but the render function is still called by the socket event, which causes errors in the console)
+    if (!this.scene || !this.scene.sys?.game) return; // JESS: added guard to prevent console errors when navigating away from the game scene (scene is destroyed but the render function is still called by the socket event, which causes errors in the console)
 
     this.clearPlayers();
 

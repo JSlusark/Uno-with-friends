@@ -20,7 +20,7 @@ export class UIManager {
   // 'show_colors' or 'display_pass_button' may still fire. Without this guard,
   // this.scene.add.* throws "Cannot read properties of null (reading 'add')".
   private isSceneAlive(): boolean {
-    return !!(this.scene && (this.scene as any).sys?.game);
+    return !!(this.scene && this.scene.sys?.game);
   }
   // ______________________________________________________________________________
 

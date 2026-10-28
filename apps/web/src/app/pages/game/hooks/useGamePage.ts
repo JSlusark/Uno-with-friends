@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router";
 import { socket } from "@/socket/Socket";
 import { useAuthContext } from "@/app/auth/AuthContext";
 
@@ -36,14 +35,9 @@ type GameStartFailedPayload = {
   message?: string;
 };
 
-type GameStartSuccessPayload = {
-  roomId: string;
-};
-
 export function useGamePage(roomName: string) {
   const { user } = useAuthContext();
   const [playerInfo, setPlayerData] = useState<PlayerData | null>(null);
-  const navigate = useNavigate();
   const [playerList, setPlayerList] = useState<PlayerListItem[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [canvasError, setCanvasError] = useState<string | null>(null);
@@ -54,17 +48,106 @@ export function useGamePage(roomName: string) {
   } | null>(null);
   // const [socketReady, setSocketReady] = useState(socket.connected);
 
-  // Keeps refs to avoid stale closures in socket callbacks ──
-  const playerInfoRef = useRef(playerInfo);
-  playerInfoRef.current = playerInfo;
+  // Stores the latest full room state
+  const [currentRoom, setCurrentRoom] = useState<RoomData | null>(null);
 
-  // Stores the latest full room state so Effect 3 can replay it on the EventBus
-  const RoomDataRef = useRef<RoomData | null>(null);
+  // Keeps a ref to the room name so the main effect can read it without re-running when it changes
   const roomNameRef = useRef(roomName);
-  roomNameRef.current = roomName;
+  useEffect(() => {
+    roomNameRef.current = roomName;
+  }, [roomName]);
 
-  const navigateRef = useRef(navigate);
-  navigateRef.current = navigate;
+  //#region -------------- SOCKET HANDLERS -----------------
+
+  const handleError = (payload: GameStartFailedPayload) => {
+    if (payload?.message === "Room not found") {
+      // navigateRef.current("/profile", { replace: true });
+      setRoomError(
+        "The room you are trying to join does not exist. Please join a different room or create your own.",
+      );
+      // or currentNavigate("/profile", { replace: true });
+    }
+    if (payload?.message === "Game already begun") {
+      // navigateRef.current("/profile", { replace: true });
+      setRoomError(
+        "The game in this room has already started. Please join a different room or create your own.",
+      );
+    }
+    if (payload?.message === "Room is full") {
+      // navigateRef.current("/profile", { replace: true });
+      setRoomError(
+        "The room you are trying to join is full. Please join a different room or create your own.",
+      );
+    }
+    // Shoots when a player tries to join a non existing room or a room (CAREFUL IF RACE BETWEEN CREATE / JOIN)
+    if (payload?.message === "Requested room not found") {
+      // navigateRef.current("/profile", { replace: true });
+      setRoomError("The room you are trying to join does not exist!");
+    }
+    // Covers a case when player is active in one room and tries to join another
+    if (payload?.message === "Player already in a different room") {
+      // navigateRef.current("/profile", { replace: true });
+      setRoomError(
+        "You are already member of another room. \nPlease leave that room before joining another.",
+      );
+    }
+  };
+
+  const handlePlayerData = (playerData: PlayerData) => {
+    setPlayerData(playerData);
+
+    // console.log(
+    //   `🎮 PLAYER DATA RECEIVED FROM SOCKET \n` +
+    //     Object.entries(playerData)
+    //       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+    //       .join("\n"),
+    // );
+  };
+
+  const handleRoomDataResponse = (roomData: RoomData | null) => {
+    if (!roomData) {
+      return;
+    }
+    setCurrentRoom(roomData); // stores the latest full room state
+    // console.log(
+    //   `🎮 ROOM DATA RECEIVED FROM SOCKET\n` +
+    //     Object.entries(roomData)
+    //       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+    //       .join("\n"),
+    // );
+    if (roomData) {
+      const playersData = roomData.players.map((p) => ({
+        ...p,
+        isPlayerTurn: p.userName === roomData.playerTurnUserName, // computes this
+      }));
+      setPlayerList(playersData); // uses the new list
+
+      if (roomData.roomState === "playing") {
+        // e.g. player refreshes page during game or joins late
+        setGameStarted(true);
+
+        // LONELY PLAYER EDGECASE - it's mostly the frontend that should handle this check but it was added in the backend and doing so does not handle edgecases where player does not follow standard navigation flow
+        if (playersData.length === 1) {
+          setGameOver({ reason: "lonely" });
+        }
+      }
+    }
+    // If the game is already finished when reconnecting, shows GameOver
+    if (roomData.roomState === "finished") {
+      setGameOver({ reason: "finished", winnerId: roomData.winnerId ?? undefined });
+    }
+  };
+
+  const handleGameStartSuccess = () => {
+    setGameStarted(true);
+  };
+
+  const handleGameStartFailed = ({ message }: GameStartFailedPayload) => {
+    // console.log(`[GamePage] game_start_error received: ${message}`);
+    setCanvasError(message ?? "Unable to start the game.");
+  };
+
+  //#endregion
 
   // ──────────────────────────────────────────
   // Effect 1: notifies backend when browser tab is closed/refreshed/navigated away to trigger drop timer
@@ -141,120 +224,8 @@ export function useGamePage(roomName: string) {
   }, [user]); // ⬅️ runs when user becomes available
 
   useEffect(() => {
-    if (playerList.length > 0) {
-      // console.log(
-      //   `👤👤👤👤 PLAYER LIST UPDATED: ${playerList.map((p) => p.userName)}`,
-      // );
-      // console.log(`🚻 ROOM STATE UPDATED: ${RoomDataRef.current?.roomState}`);
-      // console.log(`Winner ID: ${RoomDataRef.current?.playerTurnId}`);
-    }
-    if (RoomDataRef.current?.roomState === "playing") {
-      // socket.emit("canvas_ready"); // trigger game canvas to refresh with the latest room state when game starts (e.g. in case player refreshes page during game or joins late)
-      setGameStarted(true);
-    }
-
-    // LONELY PLAYER EDGECASE - it's mostly the frontend that should handle this check but it was added in the backend and doing so does not handle edgecases where player does not follow standard navigation flow
-    if (
-      RoomDataRef.current?.roomState === "playing" &&
-      playerList.length === 1
-    ) {
-      setGameOver({ reason: "lonely" });
-    }
-
-    // setTimeout(() => {
-    //   socket.emit("canvas_ready");
-    //     console.warn(`Game started? ${RoomDataRef.current?.roomState}`)
-    //   console.warn(`🎨 Refreshing canvas: ${gameStarted}`);
-    //   console.warn(`🎨 Refreshing canvas: ${gameStarted}`);
-    //   }, 100);
-  }, [playerList, RoomDataRef.current?.roomState]); // ⬅️ runs whenever players or room state changes to keep the game canvas in sync with the latest room state (e.g. new player joins, game starts, etc)
-
-  useEffect(() => {
     // console.log(`Game Started state changed: ${gameStarted}`);
   }, [gameStarted]); // ⬅️ can be used for any side effects that need to run when game starts, currently not used but can be useful for future features like showing a "Game Started" banner or something
-
-  //#region -------------- SOCKET HANDLERS -----------------
-
-  const handleError = (payload: GameStartFailedPayload) => {
-    if (payload?.message === "Room not found") {
-      // navigateRef.current("/profile", { replace: true });
-      setRoomError(
-        "The room you are trying to join does not exist. Please join a different room or create your own.",
-      );
-      // or currentNavigate("/profile", { replace: true });
-    }
-    if (payload?.message === "Game already begun") {
-      // navigateRef.current("/profile", { replace: true });
-      setRoomError(
-        "The game in this room has already started. Please join a different room or create your own.",
-      );
-    }
-    if (payload?.message === "Room is full") {
-      // navigateRef.current("/profile", { replace: true });
-      setRoomError(
-        "The room you are trying to join is full. Please join a different room or create your own.",
-      );
-    }
-    // Shoots when a player tries to join a non existing room or a room (CAREFUL IF RACE BETWEEN CREATE / JOIN)
-    if (payload?.message === "Requested room not found") {
-      // navigateRef.current("/profile", { replace: true });
-      setRoomError("The room you are trying to join does not exist!");
-    }
-    // Covers a case when player is active in one room and tries to join another
-    if (payload?.message === "Player already in a different room") {
-      // navigateRef.current("/profile", { replace: true });
-      setRoomError(
-        "You are already member of another room. \nPlease leave that room before joining another.",
-      );
-    }
-  };
-
-  const handlePlayerData = (playerData: PlayerData) => {
-    setPlayerData(playerData);
-
-    // console.log(
-    //   `🎮 PLAYER DATA RECEIVED FROM SOCKET \n` +
-    //     Object.entries(playerData)
-    //       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-    //       .join("\n"),
-    // );
-  };
-
-  const handleRoomDataResponse = (roomData: RoomData | null) => {
-    if (!roomData) {
-      return;
-    }
-    RoomDataRef.current = roomData; // current stores the latest full room state for replaying on EventBus
-    // console.log(
-    //   `🎮 ROOM DATA RECEIVED FROM SOCKET\n` +
-    //     Object.entries(roomData)
-    //       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-    //       .join("\n"),
-    // );
-    if (roomData) {
-      const playersData = roomData.players.map((p) => ({
-        ...p,
-        isPlayerTurn: p.userName === roomData.playerTurnUserName, // computes this
-      }));
-      setPlayerList(playersData); // uses the new list
-    }
-    // If the game is already finished when reconnecting, shows GameOver
-    if (roomData.roomState === "finished") {
-      setGameOver({ reason: "finished", winnerId: roomData.winnerId ?? undefined });
-    }
-  };
-
-  const handleGameStartSuccess = (_payload: GameStartSuccessPayload) => {
-    // console.log(`[GamePage] game_start_success received for room ${_payload.roomId}`);
-    setGameStarted(true);
-  };
-
-  const handleGameStartFailed = ({ message }: GameStartFailedPayload) => {
-    // console.log(`[GamePage] game_start_error received: ${message}`);
-    setCanvasError(message ?? "Unable to start the game.");
-  };
-
-  //#endregion
 
   return {
     canvasError,
@@ -263,6 +234,6 @@ export function useGamePage(roomName: string) {
     gameOver,
     playerInfo,
     playerList,
-    roomId: RoomDataRef.current?.roomId,
+    roomId: currentRoom?.roomId,
   };
 }

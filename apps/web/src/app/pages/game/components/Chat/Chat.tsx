@@ -10,7 +10,7 @@ type ChatMessage = {
 
 // Avatar: loads real user avatar, falls back to initials
 function MessageAvatar({ name, src }: { name: string; src?: string }) {
-  const cacheBuster = useRef(Date.now()); //used to force reload the image when the src changes
+  const [cacheBuster] = useState(() => Date.now()); //used to force reload the image when the src changes
   const initial = name.charAt(0).toUpperCase();
   const colors = [
     "bg-rose-400",
@@ -30,7 +30,7 @@ function MessageAvatar({ name, src }: { name: string; src?: string }) {
     >
       {src ? (
         <img
-          src={src ? `${src}?t=${cacheBuster.current}` : undefined} // add cache buster to force reload the image when the src changes
+          src={src ? `${src}?t=${cacheBuster}` : undefined} // add cache buster to force reload the image when the src changes
           alt={name}
           className="h-full w-full object-cover"
           onError={(e) => {

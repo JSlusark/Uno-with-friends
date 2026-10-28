@@ -30,14 +30,17 @@ type LeaderboardModalProps = {
 const PAGE_SIZE = 10;
 
 export function LeaderboardModal({ open, onClose }: LeaderboardModalProps) {
+  if (!open) return null;
+  // Content is mounted fresh on every open, so data is refetched and page resets to 1
+  return <LeaderboardContent onClose={onClose} />;
+}
+
+function LeaderboardContent({ onClose }: { onClose: () => void }) {
   const [allData, setAllData] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
-  // Fetch fresh data every time the modal opens
   useEffect(() => {
-    if (!open) return;
-    setLoading(true);
     fetch("/api/users/leaderboard")
       .then(async (res) => {
         if (!res.ok) throw new Error("leaderboard fetch failed");
@@ -49,18 +52,11 @@ export function LeaderboardModal({ open, onClose }: LeaderboardModalProps) {
       })
       .catch(() => setAllData([]))
       .finally(() => setLoading(false));
-  }, [open]);
+  }, []);
 
   // Paginate client-side
   const totalPages = Math.max(1, Math.ceil(allData.length / PAGE_SIZE));
   const leaderboard = allData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  // Reset to page 1 when modal closes/reopens
-  useEffect(() => {
-    if (!open) setPage(1);
-  }, [open]);
-
-  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4">

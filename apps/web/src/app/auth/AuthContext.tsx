@@ -173,6 +173,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 // Hook that checks the authentication state
+// (kept next to its provider on purpose; editing this file triggers a full reload instead of fast refresh)
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuthContext() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuthContext must be used inside AuthProvider");

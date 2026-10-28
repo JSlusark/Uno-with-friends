@@ -21,5 +21,15 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Disabling eslint on some shadcn components at the moment because they are not following the rules of react-hooks and react-refresh. This is a temporary solution until i decide to fully refactor the frontend 
+    files: ["src/shared/components/ui/**", "src/shared/animate-ui/**"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/static-components": "off",
+    },
+  },
   eslintConfigPrettier,
 ]);

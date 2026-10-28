@@ -3,7 +3,7 @@ Source:
 https://ui.aceternity.com/components/animated-tooltip
 */
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, type MouseEvent } from "react";
 import {
   motion,
   useTransform,
@@ -36,14 +36,16 @@ export const AnimatedTooltip = ({
     springConfig,
   );
 
-  const handleMouseMove = (event: any) => {
+  const handleMouseMove = (event: MouseEvent<HTMLImageElement>) => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
 
+    // read values now: React clears currentTarget once the handler returns
+    const halfWidth = event.currentTarget.offsetWidth / 2;
+    const offsetX = event.nativeEvent.offsetX;
     animationFrameRef.current = requestAnimationFrame(() => {
-      const halfWidth = event.target.offsetWidth / 2;
-      x.set(event.nativeEvent.offsetX - halfWidth);
+      x.set(offsetX - halfWidth);
     });
   };
 

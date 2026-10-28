@@ -7,13 +7,17 @@ interface ProgressBarProps {
 export const ProgressBar = ({ wins, losses }: ProgressBarProps) => {
   const total = wins + losses;
   const winTarget = total > 0 ? (wins / total) * 100 : 0;
+  // key remounts the bar when stats change so the animation restarts from 0
+  return <AnimatedProgressBar key={`${wins}-${losses}`} winTarget={winTarget} />;
+};
+
+const AnimatedProgressBar = ({ winTarget }: { winTarget: number }) => {
   const [winProgress, setWinProgress] = useState(0);
 
   useEffect(() => {
-    setWinProgress(0);
     const t = window.setTimeout(() => setWinProgress(winTarget), 40);
     return () => window.clearTimeout(t);
-  }, [wins, losses]);
+  }, [winTarget]);
 
   return (
     <div className=" ">

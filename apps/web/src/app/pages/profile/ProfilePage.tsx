@@ -12,7 +12,7 @@ import background from "@/assets/backgrounds/unocards_gemini.png";
 export default function ProfilePage() {
   const { user, logout, isAuthenticated, refreshUser } = useAuthContext(); // pulls the auth state every time the profile page is mounted (or re-mounted) and sets the user state in the auth context
   const [history, setHistory] = useState<GameHistory[]>([]); // stores the game history for the user
-  const [historyLoading, setHistoryLoading] = useState(false); // tracks loading state for the history fetch
+  const [historyLoading, setHistoryLoading] = useState(true); // tracks loading state for the history fetch
 
   // Refresh user data (stats, rank, avatar) on every profile page mount
   // so that game results are reflected immediately without needing a manual refresh
@@ -23,11 +23,7 @@ export default function ProfilePage() {
   // useEffect to fetch the user's game history only when we get the isAuthenticated state (which happens on every mount of the profile page) )
   useEffect(() => {
     // console.log("isAuthenticated changed:", isAuthenticated);
-    if (!isAuthenticated) {
-      setHistory([]);
-      return;
-    }
-    setHistoryLoading(true);
+    if (!isAuthenticated) return; // history is hidden while logged out (see render)
     fetch("/api/users/me/history", {
       credentials: "include", // includes the token in the request so that the server can authenticate the user
     })
@@ -71,11 +67,11 @@ export default function ProfilePage() {
           Logout
         </button>
       </div>
-      <ProfileSection user={user} stats={stats} onLogout={logout} />
+      <ProfileSection user={user} stats={stats} />
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:gap-8 lg:grid-cols-[1fr_2fr]">
           {/* switches view order between children */}
         <div className="order-2 lg:order-1 h-full">
-          <GamesHistorySection games={historyLoading ? [] : history} />
+          <GamesHistorySection games={isAuthenticated && !historyLoading ? history : []} />
         </div>
         <div className="order-1 lg:order-2 flex flex-col min-h-[400px] md:min-h-[60vh] lg:min-h-[700px]">
           <GameCard />

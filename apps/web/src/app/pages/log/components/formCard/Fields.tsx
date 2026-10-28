@@ -10,7 +10,6 @@ import { Field, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 
 import type { FormFields } from "../../types";
-import { useEffect } from "react";
 
 // SQL injection & XSS pattern detection — defense-in-depth.
 // Real prevention: Prisma parameterized queries + Fastify schema validation on backend.
@@ -22,7 +21,7 @@ function hasSqlInjection(value: string): boolean {
   // Semicolon     → stacked queries: SELECT 1; DROP TABLE users;
   // Equals        → ' OR 1=1 --  (most common injection pattern)
   // Backslash     → escape character abuse
-  if (/['\";=\\]/.test(value)) return true;
+  if (/['";=\\]/.test(value)) return true;
 
   // ── SQL comment markers (terminate a query early) ──
   // --         → line comment:  ' OR 1=1 --
@@ -78,13 +77,16 @@ export function Form({
 
   const fieldSignature = formFields.map((field) => field.id).join("|");
 
-  useEffect(() => {
+  // Resets the form when the set of fields changes (adjusting state during render instead of in an effect)
+  const [prevFieldSignature, setPrevFieldSignature] = useState(fieldSignature);
+  if (prevFieldSignature !== fieldSignature) {
+    setPrevFieldSignature(fieldSignature);
     setFormData(
       Object.fromEntries(
         formFields.map((field) => [field.id, field.initialValue ?? ""]),
       ),
     );
-  }, [fieldSignature]);
+  }
 
   const handleChange = (id: string, value: string) =>
     setFormData((p) => ({ ...p, [id]: value }));

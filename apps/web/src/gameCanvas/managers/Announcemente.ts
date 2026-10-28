@@ -14,7 +14,7 @@ export class Announcement {
   // the scene, but socket events like 'uno' or 'error' may still fire.
   // Without this guard, this.scene.add.* throws "Cannot read properties of null".
   private isSceneAlive(): boolean {
-    return !!(this.scene && (this.scene as any).sys?.game);
+    return !!(this.scene && this.scene.sys?.game);
   }
 
   uno() {

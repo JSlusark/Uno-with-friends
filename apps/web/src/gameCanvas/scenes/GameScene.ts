@@ -129,7 +129,7 @@ export class GameScene extends Scene {
   }
 
   private showNotTurn() {
-    if (!(this as any).sys?.game) return; // JESS: added guard to prevent console errors when navigating away from the game scene (scene is destroyed but the render function is still called by the socket event, which causes errors in the console due to a race conditoom)
+    if (!this.sys?.game) return; // JESS: added guard to prevent console errors when navigating away from the game scene (scene is destroyed but the render function is still called by the socket event, which causes errors in the console due to a race conditoom)
     const txt = this.add.text(500, 400, "It's not your turn yet", {
       fontSize: "36px",
       color: "#ff4444",

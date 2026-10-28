@@ -60,7 +60,7 @@ function PlayerItem({
   clientUsername?: string;
   gameOver?: { reason: "finished" | "lonely"; winnerId?: string } | null;
 }) {
-  const cacheBuster = useRef(Date.now()); // cache buster to force reload the avatar image when the src changes
+  const [cacheBuster] = useState(() => Date.now()); // cache buster to force reload the avatar image when the src changes
   const isYou = player.userName === clientUsername;
 
   return (
@@ -85,7 +85,7 @@ function PlayerItem({
       </p>
       {/* avatar */}
       <img
-        src={`${player.avatarUrl}?t=${cacheBuster.current}`} // add cache buster to force reload the image when the src changes
+        src={`${player.avatarUrl}?t=${cacheBuster}`} // add cache buster to force reload the image when the src changes
         alt={player.userName}
         className={`h-6 lg:h-8 2xl:h-12 w-6 lg:w-8 2xl:w-12 max-w-full shrink-0 rounded-full object-cover ${
           player.dropped ? "grayscale opacity-50" : ""
@@ -128,12 +128,12 @@ function PlayerItem({
 
 // Leaving player with red fade-out animation
 function LeavingPlayerItem({ player }: { player: PlayerListItem }) {
-  const cacheBuster = useRef(Date.now());
+  const [cacheBuster] = useState(() => Date.now());
 
   return (
     <div className="flex w-14 lg:w-18 2xl:w-28 min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-red-300 bg-red-100 p-1 lg:p-2 shadow-md animate-[fadeOut_1.5s_ease-out_forwards]">
       <img
-        src={`${player.avatarUrl}?t=${cacheBuster.current}`}
+        src={`${player.avatarUrl}?t=${cacheBuster}`}
         alt={player.userName}
         className="h-6 lg:h-8 2xl:h-12 w-6 lg:w-8 2xl:w-12 max-w-full shrink-0 rounded-full object-cover grayscale opacity-50"
         onError={(e) => {
@@ -166,14 +166,18 @@ export default function PlayerList({
     const currentNames = new Set(playerList.map((p) => p.userName)); // creates a set that stores the player names before changes are applied
 
     const newlyLeft = prevPlayersRef.current.filter(
-      // filters players0.
-      (p) =>
-        !currentNames.has(p.userName) &&
-        !leavingPlayers.some((lp) => lp.userName === p.userName),
+      // filters players that are no longer in the list
+      (p) => !currentNames.has(p.userName),
     );
 
     if (newlyLeft.length > 0) {
-      setLeavingPlayers((prev) => [...prev, ...newlyLeft]);
+      // skips players already animating out
+      setLeavingPlayers((prev) => [
+        ...prev,
+        ...newlyLeft.filter(
+          (p) => !prev.some((lp) => lp.userName === p.userName),
+        ),
+      ]);
       // Remove from leaving list after animation ends
       setTimeout(() => {
         setLeavingPlayers((prev) =>

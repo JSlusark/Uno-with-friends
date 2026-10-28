@@ -7,6 +7,10 @@ import CreateCard from "./CardTypes/CreateCard";
 import JoinRoom from "./CardTypes/JoinCard";
 import { cn } from "@/shared/lib/utils";
 
+type PlayerInfo = {
+  activeRoom: { roomName: string } | null;
+};
+
 export function GameCard() {
   const [activeTab, setActiveTab] = useState<"create" | "join">("create");
   const [roomNameInput, setRoomNameInput] = useState("");
@@ -16,6 +20,22 @@ export function GameCard() {
 
   // Join room state
   const [joinRoomName, setJoinRoomName] = useState("");
+
+  const handlePlayerInfo = (data: PlayerInfo) => {
+    // prints json data in a readable format without needing to remember the structure of the data object
+
+    // console.log(
+    //   `🃏 CREATE GAME CARD: Player info received:\n` +
+    //     Object.entries(data)
+    //       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+    //       .join("\n"),
+    // );
+
+    // Only show rejoin card if player is in an active (not finished) room
+    if (data.activeRoom && data.activeRoom !== null) {
+      setHasPendingRoom(data.activeRoom.roomName);
+    }
+  };
 
   useEffect(() => {
     socket.on("leave_room", () => {
@@ -42,22 +62,6 @@ export function GameCard() {
       );
     }
   }, [hasPendingRoom]); // placeholder to avoid "defined but not used" warnings for now; we will use these in the ProfileSection component
-
-  const handlePlayerInfo = (data: any) => {
-    // prints json data in a readable format without needing to remember the structure of the data object
-
-    // console.log(
-    //   `🃏 CREATE GAME CARD: Player info received:\n` +
-    //     Object.entries(data)
-    //       .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-    //       .join("\n"),
-    // );
-
-    // Only show rejoin card if player is in an active (not finished) room
-    if (data.activeRoom && data.activeRoom !== null) {
-      setHasPendingRoom(data.activeRoom.roomName);
-    }
-  };
 
   const handleLeaveRoom = () => {
     socket.emit("leave_room");

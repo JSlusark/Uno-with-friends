@@ -21,7 +21,7 @@ export class InputManager {
   // scene teardown. Without this, this.scene.tweens.add() throws
   // "Cannot read properties of null" because the tween manager is destroyed.
   private isSceneAlive(): boolean {
-    return !!(this.scene && (this.scene as any).sys?.game);
+    return !!(this.scene && this.scene.sys?.game);
   }
 
   setCanPlay(flag: boolean) {

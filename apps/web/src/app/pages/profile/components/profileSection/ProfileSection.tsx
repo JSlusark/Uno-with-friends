@@ -19,12 +19,10 @@ import { ProfileAvatar } from "./ProfileAvatar";
 export function ProfileSection({
   user,
   stats,
-  onLogout,
   ...props
 }: {
   user?: AuthUser;
   stats: { wins: number; losses: number; rank: number | null };
-  onLogout?: () => void;
 } & React.ComponentProps<"div">) {
   // console.log("User data was loaded:", user);
 
