@@ -1,1 +1,5 @@
+# Runs on staged files only (config: .lintstagedrc.json):
+#   - web: ESLint + Vitest tests related to the staged files
+#   - api: Vitest tests related to the staged files
+
 npx lint-staged

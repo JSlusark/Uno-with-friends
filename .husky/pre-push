@@ -1,4 +1,11 @@
-# Runs only the test suites of the apps touched by the commits being pushed.
+#!/usr/bin/env sh
+# Runs the FULL unit-test suite of each app touched by the commits being pushed.
+# Unlike pre-commit (tests related to staged files), this also checks:
+#   - dependency changes (package.json / lockfile)
+#   - config changes that affect every test (vite.config.ts, src/test/setup.ts)
+#   - deleted files that tests still import
+#   - commits made with --no-verify
+#
 # git feeds one line per pushed ref on stdin: <local ref> <local sha> <remote ref> <remote sha>
 zero=0000000000000000000000000000000000000000
 changed=""

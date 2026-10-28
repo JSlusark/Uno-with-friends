@@ -1,3 +1,9 @@
 {
-  "apps/web/**/*.{ts,tsx}": "apps/web/node_modules/.bin/eslint --config apps/web/eslint.config.js"
+  "apps/web/**/*.{ts,tsx}": [
+    "apps/web/node_modules/.bin/eslint --config apps/web/eslint.config.js",
+    "apps/web/node_modules/.bin/vitest related --run --root apps/web --passWithNoTests"
+  ],
+  "apps/api/**/*.ts": [
+    "apps/api/node_modules/.bin/vitest related --run --root apps/api --passWithNoTests"
+  ]
 }

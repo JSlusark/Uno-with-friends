@@ -5,3 +5,8 @@ describe("smoke test", () => {
     expect(true).toBe(true);
   });
 });
+
+// used to test that husky pre-commit fails on test failure
+// it("fails on purpose", () => {
+//   expect(true).toBe(false);
+// });
