@@ -1,6 +1,9 @@
 name: api
-on: # events that trigger this workflow
-  push: # if push does not touch apu (but other parts of the repo), skips the workflow
+on:  # events that trigger this workflow
+  pull_request: # runs on any PR and on pushes to main (i.e. merged PRs); skipped if api files weren't touched
+    paths: ["apps/api/**", ".github/workflows/api.yaml"]
+  push:
+    branches: [main]
     paths: ["apps/api/**", ".github/workflows/api.yaml"]
 jobs:
   ci:

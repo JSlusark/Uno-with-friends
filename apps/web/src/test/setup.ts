@@ -4,3 +4,9 @@ This registers the jest-dom checks (toBeInTheDocument, etc.) once for all tests,
 
 */
 import "@testing-library/jest-dom/vitest";
+
+import { afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
+
+// RTL only auto-unmounts between tests when vitest `globals` is on, so we do it here
+afterEach(() => cleanup());

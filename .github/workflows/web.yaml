@@ -1,6 +1,9 @@
 name: web
-on: # events that trigger this workflow
-  push: # if push does not touch web (but other parts of the repo), skips the workflow
+on:  # events that trigger this workflow
+  pull_request: # runs on any PR and on pushes to main (i.e. merged PRs); skipped if web files weren't touched
+    paths: ["apps/web/**", ".github/workflows/web.yaml"]
+  push:
+    branches: [main]
     paths: ["apps/web/**", ".github/workflows/web.yaml"]
 jobs:
   ci:
